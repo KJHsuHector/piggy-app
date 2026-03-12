@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTransactions } from '../context/TransactionContext';
+import { X } from 'lucide-react';
 
 export const AddTransaction = ({ onSave }) => {
   const { addTransaction, activeProfile } = useTransactions();
@@ -48,8 +49,15 @@ export const AddTransaction = ({ onSave }) => {
 
   return (
     <div className="add-transaction-screen animate-fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div className="header glass-panel" style={{ borderRadius: '0 0 20px 20px', margin: '-1.25rem -1.25rem 1rem -1.25rem', padding: '1.25rem', flexShrink: 0 }}>
-        <div className="flex-center" style={{ gap: '1rem', marginBottom: '1.25rem' }}>
+      <div className="header glass-panel" style={{ borderRadius: '0 0 20px 20px', margin: '-1.25rem -1.25rem 1rem -1.25rem', padding: '1.25rem', flexShrink: 0, position: 'relative' }}>
+        <button 
+          onClick={onSave} // Reuse onSave to just close the tab and return home
+          style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-secondary)' }}
+        >
+          <X size={24} />
+        </button>
+
+        <div className="flex-center" style={{ gap: '1rem', marginBottom: '1.25rem', marginTop: '1rem' }}>
           <button 
             className={`type-btn ${type === 'expense' ? 'active-expense' : ''}`}
             onClick={() => setType('expense')}
