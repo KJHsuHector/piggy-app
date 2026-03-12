@@ -41,7 +41,7 @@ function App() {
           aria-label="Add Transaction"
         >
           <div className="piggy-icon">
-            <PiggyBank size={32} />
+            <span style={{ fontSize: '32px', lineHeight: 1 }}>🐷</span>
             <div className="fab-plus-badge">
               <Plus size={16} strokeWidth={3} />
             </div>
