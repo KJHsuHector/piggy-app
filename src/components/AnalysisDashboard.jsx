@@ -84,8 +84,8 @@ export const AnalysisDashboard = () => {
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius="72%"
-                  outerRadius="95%"
+                  innerRadius={75}
+                  outerRadius={95}
                   paddingAngle={5}
                   dataKey="value"
                   stroke="none"
