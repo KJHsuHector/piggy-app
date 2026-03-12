@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { useTransactions } from '../context/TransactionContext';
-import { Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, Cloud, CloudOff, LogIn, LogOut, Loader2 } from 'lucide-react';
 
 export const ProfileManager = () => {
-  const { profiles, activeProfile, activeProfileId, setActiveProfileId, addProfile, deleteProfile, addCategory, deleteCategory } = useTransactions();
+  const { 
+    profiles, activeProfile, activeProfileId, setActiveProfileId, 
+    addProfile, deleteProfile, addCategory, deleteCategory,
+    user, isSyncing, loginWithGoogle, logout
+  } = useTransactions();
   const [isAddingProfile, setIsAddingProfile] = useState(false);
   const [newProfileName, setNewProfileName] = useState('');
   
@@ -40,11 +44,37 @@ export const ProfileManager = () => {
   return (
     <div className="profile-manager animate-fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={{ flexShrink: 0 }}>
-        <h2 className="title" style={{ marginBottom: '0.25rem' }}>Ledgers</h2>
-        <p className="subtitle" style={{ marginBottom: '1.25rem' }}>Separate your tracking</p>
+        <h2 className="title" style={{ marginBottom: '0.25rem' }}>Account & Ledgers</h2>
+        <p className="subtitle" style={{ marginBottom: '1.25rem' }}>Manage sync and tracking</p>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', paddingRight: '0.25rem', paddingBottom: '1rem' }}>
+        {/* Cloud Sync Section */}
+        <div className="glass-panel" style={{ marginBottom: '1.5rem', border: user ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)' }}>
+          <div className="flex-between" style={{ marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {isSyncing ? <Loader2 size={24} className="spin text-primary" /> : (user ? <Cloud size={24} color="var(--accent-primary)" /> : <CloudOff size={24} color="var(--text-secondary)" />)}
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: user ? 'var(--accent-primary)' : 'var(--text-primary)' }}>Cloud Sync</h3>
+            </div>
+            {user ? (
+              <button className="btn" style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '0.4rem 0.75rem', fontSize: '0.8rem', gap: '0.25rem' }} onClick={logout}>
+                <LogOut size={16} /> Logout
+              </button>
+            ) : (
+              <button className="btn btn-primary" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', gap: '0.25rem' }} onClick={loginWithGoogle}>
+                <LogIn size={16} /> Sign In
+              </button>
+            )}
+          </div>
+          {user ? (
+             <p className="subtitle" style={{ fontSize: '0.85rem' }}>Logged in as <strong style={{color: 'var(--text-primary)'}}>{user.displayName || user.email}</strong>. Data is safely backed up.</p>
+          ) : (
+             <p className="subtitle" style={{ fontSize: '0.85rem' }}>Sign in with Google to automatically back up your ledgers to the cloud.</p>
+          )}
+        </div>
+
+        <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem', color: 'var(--text-secondary)' }}>Your Ledgers</h3>
+        
         {profiles.map(profile => {
           const isActive = profile.id === activeProfileId;
           return (

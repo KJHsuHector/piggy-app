@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { auth, db, googleProvider, signInWithPopup, signOut, onAuthStateChanged, doc, setDoc, getDoc } from '../services/firebase';
 
 const TRANSACTION_STORAGE_KEY = 'piggy_transactions';
 
@@ -56,11 +57,79 @@ export const TransactionProvider = ({ children }) => {
     return [];
   });
 
+  const [user, setUser] = useState(null);
+  const [isSyncing, setIsSyncing] = useState(true); // default true until auth checks
+  const isInitialLocalLoad = useRef(true);
+
+  // 1. Auth Listener & Initial Cloud Pull
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        setIsSyncing(true);
+        try {
+          const docRef = doc(db, 'users', currentUser.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.profiles?.length > 0) setProfiles(data.profiles);
+            if (data.transactions) setTransactions(data.transactions);
+            if (data.activeProfileId) setActiveProfileId(data.activeProfileId);
+          }
+        } catch (error) {
+          console.error("Cloud load error", error);
+        } finally {
+          setIsSyncing(false);
+        }
+      } else {
+        setIsSyncing(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 2. Data Persistence (Local + Cloud)
+  useEffect(() => {
+    if (isInitialLocalLoad.current) {
+      isInitialLocalLoad.current = false;
+      return;
+    }
+
+    // Always save locally
     localStorage.setItem('piggy_profiles', JSON.stringify(profiles));
     localStorage.setItem('piggy_active_profile', activeProfileId);
     localStorage.setItem(TRANSACTION_STORAGE_KEY, JSON.stringify(transactions));
-  }, [profiles, activeProfileId, transactions]);
+
+    // Save to Cloud if logged in and not currently pulling from it
+    if (user && !isSyncing) {
+      const docRef = doc(db, 'users', user.uid);
+      setDoc(docRef, {
+        profiles,
+        transactions,
+        activeProfileId,
+        lastUpdated: Date.now()
+      }, { merge: true }).catch(err => console.error("Cloud sync error", err));
+    }
+  }, [profiles, activeProfileId, transactions, user, isSyncing]);
+
+  const loginWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (e) {
+      console.error(e);
+      alert('Login failed');
+    }
+  };
+
+  const logout = async () => {
+    try {
+      if (window.confirm("Logging out will stop cloud sync. Your data remains locally. Continue?")) {
+        await signOut(auth);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   // Profile Management
   const addProfile = (name, icon) => {
@@ -129,6 +198,10 @@ export const TransactionProvider = ({ children }) => {
 
   return (
     <TransactionContext.Provider value={{
+      user,
+      isSyncing,
+      loginWithGoogle,
+      logout,
       profiles,
       activeProfile,
       activeProfileId,
