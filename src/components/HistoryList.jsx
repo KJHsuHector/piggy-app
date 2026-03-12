@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTransactions } from '../context/TransactionContext';
+import { Trash2 } from 'lucide-react';
 
 export const HistoryList = () => {
   const { transactions, deleteTransaction, activeProfile } = useTransactions();
@@ -63,9 +64,9 @@ export const HistoryList = () => {
                       onClick={() => {
                         if(window.confirm('Delete this transaction?')) deleteTransaction(t.id);
                       }}
-                      style={{ background: 'none', border: 'none', color: 'var(--danger)', opacity: 0.5, cursor: 'pointer' }}
+                      style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '0.4rem', borderRadius: '50%', border: 'none', color: 'var(--danger)', cursor: 'pointer', display: 'flex' }}
                     >
-                      ×
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>
