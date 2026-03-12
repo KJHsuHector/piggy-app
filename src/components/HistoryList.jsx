@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTransactions } from '../context/TransactionContext';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Edit2 } from 'lucide-react';
 
-export const HistoryList = () => {
+export const HistoryList = ({ onEdit }) => {
   const { transactions, deleteTransaction, activeProfile } = useTransactions();
 
   // Group transactions by date
@@ -56,10 +56,18 @@ export const HistoryList = () => {
                         )}
                       </div>
                     </div>
-                  <div className="flex-center" style={{ gap: '1rem' }}>
-                    <div className={t.type === 'income' ? 'text-success' : 'text-primary'} style={{ fontWeight: '700' }}>
+                  <div className="flex-center" style={{ gap: '0.75rem' }}>
+                    <div className={t.type === 'income' ? 'text-success' : 'text-primary'} style={{ fontWeight: '700', marginRight: '0.25rem' }}>
                       {t.type === 'income' ? '+' : '-'}${t.amount.toLocaleString()}
                     </div>
+                    
+                    <button 
+                      onClick={() => onEdit && onEdit(t)}
+                      style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '0.4rem', borderRadius: '50%', border: 'none', color: 'var(--accent-primary)', cursor: 'pointer', display: 'flex' }}
+                    >
+                      <Edit2 size={16} />
+                    </button>
+
                     <button 
                       onClick={() => {
                         if(window.confirm('Delete this transaction?')) deleteTransaction(t.id);

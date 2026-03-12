@@ -183,6 +183,15 @@ export const TransactionProvider = ({ children }) => {
     setTransactions(prev => prev.filter(t => t.id !== id));
   };
 
+  const editTransaction = (id, updatedFields) => {
+    setTransactions(prev => prev.map(t => {
+      if (t.id === id) {
+        return { ...t, ...updatedFields };
+      }
+      return t;
+    }));
+  };
+
   // Derived state calculations (Filtered by active profile)
   const activeTransactions = transactions.filter(t => t.profileId === activeProfileId);
 
@@ -213,6 +222,7 @@ export const TransactionProvider = ({ children }) => {
       transactions: activeTransactions, // Expose only active txs universally
       addTransaction,
       deleteTransaction,
+      editTransaction,
       totalExpenses,
       totalIncome
     }}>

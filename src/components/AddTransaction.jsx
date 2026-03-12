@@ -2,12 +2,18 @@ import React, { useState } from 'react';
 import { useTransactions } from '../context/TransactionContext';
 import { X } from 'lucide-react';
 
-export const AddTransaction = ({ onSave }) => {
-  const { addTransaction, activeProfile } = useTransactions();
-  const [amount, setAmount] = useState('0');
-  const [type, setType] = useState('expense'); // 'expense' or 'income'
-  const [category, setCategory] = useState(null);
-  const [note, setNote] = useState('');
+export const AddTransaction = ({ onSave, initialTransaction = null }) => {
+  const { addTransaction, editTransaction, activeProfile } = useTransactions();
+  const [amount, setAmount] = useState(initialTransaction ? initialTransaction.amount.toString() : '0');
+  const [type, setType] = useState(initialTransaction ? initialTransaction.type : 'expense'); 
+  
+  // Find full category object if editing
+  const initialCategory = initialTransaction 
+    ? activeProfile?.categories?.find(c => c.id === initialTransaction.categoryId) 
+    : null;
+    
+  const [category, setCategory] = useState(initialCategory);
+  const [note, setNote] = useState(initialTransaction?.note || '');
 
   const handleNumClick = (num) => {
     if (amount === '0') {
@@ -28,12 +34,18 @@ export const AddTransaction = ({ onSave }) => {
   const handleSubmit = () => {
     if (amount === '0' || !category) return;
 
-    addTransaction({
+    const transactionData = {
       amount: Number(amount),
       type,
       categoryId: category.id,
       note
-    });
+    };
+
+    if (initialTransaction) {
+      editTransaction(initialTransaction.id, transactionData);
+    } else {
+      addTransaction(transactionData);
+    }
     
     // Reset and go back
     setAmount('0');
@@ -99,13 +111,20 @@ export const AddTransaction = ({ onSave }) => {
         })}
         </div>
 
-        <input 
-          type="text" 
+        <textarea 
           className="glass-input full-width" 
-          placeholder="Add note (optional)" 
+          placeholder="Add memo/note (optional)..." 
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          style={{ marginTop: 'auto', marginBottom: '0.5rem', flexShrink: 0 }}
+          style={{ 
+            marginTop: 'auto', 
+            marginBottom: '0.5rem', 
+            flexShrink: 0, 
+            minHeight: '80px', 
+            resize: 'none',
+            fontSize: '1rem',
+            padding: '0.75rem'
+          }}
         />
 
         <div className="numpad" style={{ flexShrink: 0 }}>
@@ -125,7 +144,7 @@ export const AddTransaction = ({ onSave }) => {
           disabled={amount === '0' || !category}
           onClick={handleSubmit}
         >
-          Save Transaction
+          {initialTransaction ? 'Update Transaction' : 'Save Transaction'}
         </button>
       </div>
 

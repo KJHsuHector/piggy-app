@@ -9,15 +9,29 @@ import { PiggyBank, Plus } from 'lucide-react';
 
 function App() {
   const [currentTab, setCurrentTab] = useState('home');
+  const [editingTransaction, setEditingTransaction] = useState(null);
+
+  const handleEdit = (transaction) => {
+    setEditingTransaction(transaction);
+    setCurrentTab('add');
+  };
 
   const renderContent = () => {
     switch (currentTab) {
       case 'home':
         return <HomeDashboard />;
       case 'add':
-        return <AddTransaction onSave={() => setCurrentTab('home')} />;
+        return (
+          <AddTransaction 
+            initialTransaction={editingTransaction}
+            onSave={() => {
+              setEditingTransaction(null);
+              setCurrentTab('home');
+            }} 
+          />
+        );
       case 'history':
-        return <HistoryList />;
+        return <HistoryList onEdit={handleEdit} />;
       case 'stats':
         return <AnalysisDashboard />;
       case 'profile':
@@ -37,7 +51,10 @@ function App() {
       {currentTab !== 'add' && (
         <button 
           className="piggy-fab"
-          onClick={() => setCurrentTab('add')}
+          onClick={() => {
+            setEditingTransaction(null); // Ensure we start fresh
+            setCurrentTab('add')
+          }}
           aria-label="Add Transaction"
         >
           <div className="piggy-icon">
