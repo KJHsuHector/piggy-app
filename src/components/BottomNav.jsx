@@ -1,12 +1,12 @@
 import React from 'react';
-import { Home, PlusCircle, History, Settings } from 'lucide-react';
+import { Home, PlusCircle, History, PieChart } from 'lucide-react';
 
 export const BottomNav = ({ currentTab, setCurrentTab }) => {
   const tabs = [
     { id: 'home', icon: Home, label: 'Home' },
     { id: 'add', icon: PlusCircle, label: 'Add', isPrimary: true },
     { id: 'history', icon: History, label: 'History' },
-    { id: 'settings', icon: Settings, label: 'Settings' },
+    { id: 'stats', icon: PieChart, label: 'Stats' },
   ];
 
   return (
