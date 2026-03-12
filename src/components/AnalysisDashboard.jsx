@@ -56,6 +56,28 @@ export const AnalysisDashboard = () => {
     return null;
   };
 
+  const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent, name }) => {
+    // Hide labels for very small slices to prevent overlap
+    if (percent < 0.05) return null; 
+
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 15; // Set label slightly outside the donut
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const textAnchor = x > cx ? 'start' : 'end';
+
+    return (
+      <g>
+        <text x={x} y={y - 8} fill="var(--text-secondary)" textAnchor={textAnchor} dominantBaseline="central" style={{ fontSize: '10px' }}>
+          {name}
+        </text>
+        <text x={x} y={y + 6} fill="var(--text-primary)" textAnchor={textAnchor} dominantBaseline="central" style={{ fontSize: '11px', fontWeight: 'bold' }}>
+          {Math.round(percent * 100)}%
+        </text>
+      </g>
+    );
+  };
+
   return (
     <div className="analysis-dashboard animate-fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={{ flexShrink: 0 }}>
@@ -84,11 +106,13 @@ export const AnalysisDashboard = () => {
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={75}
-                  outerRadius={95}
+                  innerRadius="45%"
+                  outerRadius="65%"
                   paddingAngle={5}
                   dataKey="value"
                   stroke="none"
+                  label={renderCustomizedLabel}
+                  labelLine={false}
                 >
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
