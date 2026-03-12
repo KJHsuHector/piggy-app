@@ -17,10 +17,11 @@ export const HistoryList = () => {
   }, {});
 
   return (
-    <div className="history-list animate-fade-in">
-      <h2 className="title" style={{ marginBottom: '1.5rem' }}>Transaction History</h2>
+    <div className="history-list animate-fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <h2 className="title" style={{ marginBottom: '1.25rem', flexShrink: 0 }}>Transaction History</h2>
       
-      {Object.keys(groupedTransactions).length === 0 ? (
+      <div style={{ flex: 1, overflowY: 'auto', paddingRight: '0.25rem', paddingBottom: '1rem' }}>
+        {Object.keys(groupedTransactions).length === 0 ? (
         <div className="glass-panel text-center" style={{ padding: '3rem 1rem' }}>
           <p className="subtitle">No history available yet.</p>
         </div>
@@ -65,7 +66,8 @@ export const HistoryList = () => {
             </div>
           </div>
         ))
-      )}
+        )}
+      </div>
     </div>
   );
 };

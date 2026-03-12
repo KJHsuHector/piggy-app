@@ -57,11 +57,13 @@ export const AnalysisDashboard = () => {
   };
 
   return (
-    <div className="analysis-dashboard animate-fade-in">
-      <h2 className="title" style={{ marginBottom: '0.5rem' }}>Monthly Analysis</h2>
-      <p className="subtitle" style={{ marginBottom: '1.5rem' }}>
-        {now.toLocaleString('default', { month: 'long', year: 'numeric' })}
-      </p>
+    <div className="analysis-dashboard animate-fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flexShrink: 0 }}>
+        <h2 className="title" style={{ marginBottom: '0.25rem' }}>Monthly Analysis</h2>
+        <p className="subtitle" style={{ marginBottom: '1rem' }}>
+          {now.toLocaleString('default', { month: 'long', year: 'numeric' })}
+        </p>
+      </div>
 
       {totalSpent === 0 ? (
         <div className="glass-panel text-center" style={{ padding: '3rem 1rem' }}>
@@ -69,11 +71,11 @@ export const AnalysisDashboard = () => {
         </div>
       ) : (
         <>
-          <div className="glass-panel flex-center" style={{ height: '250px', position: 'relative' }}>
-            {/* Center Text inside the Donut */}
+          <div className="glass-panel flex-center" style={{ flexShrink: 0, height: '220px', position: 'relative', margin: '0 1rem' }}>
+            {/* Center Text inside the Donut: Smaller text, wider inner radius */}
             <div style={{ position: 'absolute', textAlign: 'center', pointerEvents: 'none' }}>
-              <div className="subtitle" style={{ fontSize: '0.75rem' }}>Total Spent</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>${totalSpent.toLocaleString()}</div>
+              <div className="subtitle" style={{ fontSize: '0.7rem' }}>Total Spent</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: '700' }}>${totalSpent.toLocaleString()}</div>
             </div>
             
             <ResponsiveContainer width="100%" height="100%">
@@ -82,8 +84,8 @@ export const AnalysisDashboard = () => {
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={85}
+                  innerRadius="72%"
+                  outerRadius="95%"
                   paddingAngle={5}
                   dataKey="value"
                   stroke="none"
@@ -97,9 +99,9 @@ export const AnalysisDashboard = () => {
             </ResponsiveContainer>
           </div>
 
-          <div style={{ marginTop: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Category Breakdown</h3>
-            <div className="glass-panel" style={{ padding: '0.5rem 1rem' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, marginTop: '1.25rem' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', flexShrink: 0 }}>Category Breakdown</h3>
+            <div className="glass-panel" style={{ flex: 1, overflowY: 'auto', padding: '0.5rem 1rem', marginBottom: 0 }}>
               {chartData.map((item, index) => {
                 const percentage = Math.round((item.value / totalSpent) * 100);
                 const isLast = index === chartData.length - 1;

@@ -58,9 +58,9 @@ export const AddTransaction = ({ onSave }) => {
   );
 
   return (
-    <div className="add-transaction-screen animate-fade-in">
-      <div className="header glass-panel" style={{ borderRadius: '0 0 20px 20px', margin: '-1.5rem -1.5rem 1rem -1.5rem' }}>
-        <div className="flex-center" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
+    <div className="add-transaction-screen animate-fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div className="header glass-panel" style={{ borderRadius: '0 0 20px 20px', margin: '-1.25rem -1.25rem 1rem -1.25rem', padding: '1.25rem', flexShrink: 0 }}>
+        <div className="flex-center" style={{ gap: '1rem', marginBottom: '1.25rem' }}>
           <button 
             className={`type-btn ${type === 'expense' ? 'active-expense' : ''}`}
             onClick={() => setType('expense')}
@@ -81,8 +81,9 @@ export const AddTransaction = ({ onSave }) => {
         </div>
       </div>
 
-      <div className="section-title">Select Category</div>
-      <div className="category-grid">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        <div className="section-title" style={{ flexShrink: 0 }}>Select Category</div>
+        <div className="category-grid" style={{ flexShrink: 0 }}>
         {filteredCategories.map(cat => {
           const Icon = cat.icon;
           const isSelected = category?.id === cat.id;
@@ -100,36 +101,37 @@ export const AddTransaction = ({ onSave }) => {
             </button>
           );
         })}
+        </div>
+
+        <input 
+          type="text" 
+          className="glass-input full-width" 
+          placeholder="Add note (optional)" 
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          style={{ marginTop: 'auto', marginBottom: '0.5rem', flexShrink: 0 }}
+        />
+
+        <div className="numpad" style={{ flexShrink: 0 }}>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+            <button key={num} className="num-btn" onClick={() => handleNumClick(num.toString())}>
+              {num}
+            </button>
+          ))}
+          <button className="num-btn" onClick={() => setAmount('0')}>C</button>
+          <button className="num-btn" onClick={() => handleNumClick('0')}>0</button>
+          <button className="num-btn" onClick={handleBackspace}>⌫</button>
+        </div>
+
+        <button 
+          className="btn btn-primary full-width" 
+          style={{ marginTop: '0.5rem', padding: '0.875rem', fontSize: '1.1rem', flexShrink: 0 }}
+          disabled={amount === '0' || !category}
+          onClick={handleSubmit}
+        >
+          Save Transaction
+        </button>
       </div>
-
-      <input 
-        type="text" 
-        className="glass-input full-width" 
-        placeholder="Add note (optional)" 
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        style={{ marginTop: '1rem', marginBottom: '1rem' }}
-      />
-
-      <div className="numpad">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-          <button key={num} className="num-btn" onClick={() => handleNumClick(num.toString())}>
-            {num}
-          </button>
-        ))}
-        <button className="num-btn" onClick={() => setAmount('0')}>C</button>
-        <button className="num-btn" onClick={() => handleNumClick('0')}>0</button>
-        <button className="num-btn" onClick={handleBackspace}>⌫</button>
-      </div>
-
-      <button 
-        className="btn btn-primary full-width" 
-        style={{ marginTop: '1rem', padding: '1rem', fontSize: '1.1rem' }}
-        disabled={amount === '0' || !category}
-        onClick={handleSubmit}
-      >
-        Save Transaction
-      </button>
 
       <style>{`
         .type-btn {
@@ -211,15 +213,15 @@ export const AddTransaction = ({ onSave }) => {
         .numpad {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 0.5rem;
-          margin-top: 1rem;
+          gap: 0.35rem;
+          margin-top: 0.25rem;
         }
         .num-btn {
           background: rgba(30, 41, 59, 0.5);
           border: 1px solid var(--border-color);
           border-radius: 12px;
-          padding: 1rem;
-          font-size: 1.5rem;
+          padding: 0.75rem;
+          font-size: 1.25rem;
           font-weight: 500;
           color: var(--text-primary);
           cursor: pointer;

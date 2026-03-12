@@ -17,8 +17,8 @@ export const HomeDashboard = () => {
   const recentTransactions = transactions.slice(0, 3);
 
   return (
-    <div className="home-dashboard animate-fade-in">
-      <div className="flex-between" style={{ marginBottom: '1.5rem' }}>
+    <div className="home-dashboard animate-fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div className="flex-between" style={{ marginBottom: '1.25rem', flexShrink: 0 }}>
         <div>
           <h1 className="title" style={{ marginBottom: '0.25rem' }}>Piggy</h1>
           <p className="subtitle">Hello, what did we buy today?</p>
@@ -26,7 +26,7 @@ export const HomeDashboard = () => {
         <div className="avatar">🐷</div>
       </div>
 
-      <div className="glass-panel text-center hero-card">
+      <div className="glass-panel text-center hero-card" style={{ flexShrink: 0, padding: '1.5rem 1rem', marginBottom: '1.25rem' }}>
         <p className="subtitle" style={{ color: 'rgba(255,255,255,0.8)' }}>Current Balance</p>
         <h2 className="balance-display">${balance.toLocaleString()}</h2>
         
@@ -40,7 +40,7 @@ export const HomeDashboard = () => {
         </div>
       </div>
 
-      <div className="grid-2">
+      <div className="grid-2" style={{ flexShrink: 0, marginBottom: '1.25rem' }}>
         <div className="glass-panel mini-card" style={{ borderColor: 'var(--accent-glow)' }}>
           <div className="flex-between">
             <span className="subtitle">Today's Spend</span>
@@ -58,8 +58,8 @@ export const HomeDashboard = () => {
         </div>
       </div>
 
-      <div style={{ marginTop: '1.5rem' }}>
-        <div className="flex-between" style={{ marginBottom: '1rem' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        <div className="flex-between" style={{ marginBottom: '0.75rem', flexShrink: 0 }}>
           <h3 style={{ fontSize: '1.1rem' }}>Recent Activity</h3>
           <span className="subtitle" style={{ color: 'var(--accent-primary)', fontSize: '0.8rem' }}>See all</span>
         </div>
@@ -69,7 +69,7 @@ export const HomeDashboard = () => {
             <p className="subtitle">No transactions yet. Tap the + to start!</p>
           </div>
         ) : (
-          <div className="recent-list">
+          <div className="recent-list" style={{ flex: 1, overflowY: 'auto', paddingRight: '0.25rem' }}>
             {recentTransactions.map(t => (
               <div key={t.id} className="glass-panel transaction-item">
                 <div className="flex-between">
