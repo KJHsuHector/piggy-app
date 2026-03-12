@@ -4,6 +4,8 @@ import { HomeDashboard } from './components/HomeDashboard';
 import { AddTransaction } from './components/AddTransaction';
 import { HistoryList } from './components/HistoryList';
 import { AnalysisDashboard } from './components/AnalysisDashboard';
+import { ProfileManager } from './components/ProfileManager';
+import { PiggyBank, Plus } from 'lucide-react';
 
 function App() {
   const [currentTab, setCurrentTab] = useState('home');
@@ -18,6 +20,8 @@ function App() {
         return <HistoryList />;
       case 'stats':
         return <AnalysisDashboard />;
+      case 'profile':
+        return <ProfileManager />;
       default:
         return null;
     }
@@ -29,7 +33,25 @@ function App() {
         {renderContent()}
       </main>
       
-      <BottomNav currentTab={currentTab} setCurrentTab={setCurrentTab} />
+      {/* Floating Piggy Action Button */}
+      {currentTab !== 'add' && (
+        <button 
+          className="piggy-fab"
+          onClick={() => setCurrentTab('add')}
+          aria-label="Add Transaction"
+        >
+          <div className="piggy-icon">
+            <PiggyBank size={32} />
+            <div className="fab-plus-badge">
+              <Plus size={16} strokeWidth={3} />
+            </div>
+          </div>
+        </button>
+      )}
+
+      {currentTab !== 'add' && (
+        <BottomNav currentTab={currentTab} setCurrentTab={setCurrentTab} />
+      )}
     </div>
   );
 }
