@@ -1,20 +1,8 @@
 import React, { useState } from 'react';
 import { useTransactions } from '../context/TransactionContext';
-import { ShoppingBag, Coffee, Car, Home, Smartphone, Briefcase, DollarSign, Activity } from 'lucide-react';
-
-const CATEGORIES = [
-  { id: 'food', label: 'Food & Dining', icon: Coffee, color: '#f59e0b' },
-  { id: 'transport', label: 'Transport', icon: Car, color: '#3b82f6' },
-  { id: 'shopping', label: 'Shopping', icon: ShoppingBag, color: '#ec4899' },
-  { id: 'housing', label: 'Housing', icon: Home, color: '#8b5cf6' },
-  { id: 'bills', label: 'Bills', icon: Smartphone, color: '#06b6d4' },
-  { id: 'salary', label: 'Salary', icon: Briefcase, color: '#10b981', type: 'income' },
-  { id: 'other_in', label: 'Other Income', icon: DollarSign, color: '#10b981', type: 'income' },
-  { id: 'other_out', label: 'Other Exp.', icon: Activity, color: '#64748b' },
-];
 
 export const AddTransaction = ({ onSave }) => {
-  const { addTransaction } = useTransactions();
+  const { addTransaction, activeProfile } = useTransactions();
   const [amount, setAmount] = useState('0');
   const [type, setType] = useState('expense'); // 'expense' or 'income'
   const [category, setCategory] = useState(null);
@@ -53,7 +41,8 @@ export const AddTransaction = ({ onSave }) => {
     onSave();
   };
 
-  const filteredCategories = CATEGORIES.filter(c => 
+  const currentCategories = activeProfile?.categories || [];
+  const filteredCategories = currentCategories.filter(c => 
     type === 'expense' ? c.type !== 'income' : c.type === 'income'
   );
 
@@ -85,7 +74,6 @@ export const AddTransaction = ({ onSave }) => {
         <div className="section-title" style={{ flexShrink: 0 }}>Select Category</div>
         <div className="category-grid" style={{ flexShrink: 0 }}>
         {filteredCategories.map(cat => {
-          const Icon = cat.icon;
           const isSelected = category?.id === cat.id;
           return (
             <button
@@ -94,8 +82,8 @@ export const AddTransaction = ({ onSave }) => {
               onClick={() => setCategory(cat)}
               style={{ '--cat-color': cat.color }}
             >
-              <div className="cat-icon" style={{ background: isSelected ? cat.color : `${cat.color}20`, color: isSelected ? 'white' : cat.color }}>
-                <Icon size={24} />
+              <div className="cat-icon flex-center" style={{ background: isSelected ? cat.color : `${cat.color}20`, color: isSelected ? 'white' : cat.color, fontSize: '1.5rem' }}>
+                {cat.icon}
               </div>
               <span className="cat-label">{cat.label}</span>
             </button>

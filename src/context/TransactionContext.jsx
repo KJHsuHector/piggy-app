@@ -2,6 +2,17 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const TRANSACTION_STORAGE_KEY = 'piggy_transactions';
 
+export const DEFAULT_CATEGORIES = [
+  { id: 'food', label: 'Food & Dining', icon: '🍽️', color: '#f59e0b', type: 'expense' },
+  { id: 'transport', label: 'Transport', icon: '🚗', color: '#3b82f6', type: 'expense' },
+  { id: 'shopping', label: 'Shopping', icon: '🛍️', color: '#ec4899', type: 'expense' },
+  { id: 'housing', label: 'Housing', icon: '🏠', color: '#8b5cf6', type: 'expense' },
+  { id: 'bills', label: 'Bills', icon: '📱', color: '#06b6d4', type: 'expense' },
+  { id: 'salary', label: 'Salary', icon: '💼', color: '#10b981', type: 'income' },
+  { id: 'other_in', label: 'Other Income', icon: '💵', color: '#10b981', type: 'income' },
+  { id: 'other_out', label: 'Other Exp.', icon: '🏷️', color: '#64748b', type: 'expense' }
+];
+
 const TransactionContext = createContext();
 
 export const useTransactions = () => useContext(TransactionContext);
@@ -10,11 +21,18 @@ export const TransactionProvider = ({ children }) => {
   const [profiles, setProfiles] = useState(() => {
     try {
       const saved = localStorage.getItem('piggy_profiles');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Migration: Ensure existing profiles have categories
+        return parsed.map(p => ({
+          ...p,
+          categories: p.categories || DEFAULT_CATEGORIES
+        }));
+      }
     } catch (e) {
       console.error("Failed to parse profiles", e);
     }
-    return [{ id: 'daily', name: 'Daily', icon: '🐷' }];
+    return [{ id: 'daily', name: 'Daily', icon: '🐷', categories: DEFAULT_CATEGORIES }];
   });
 
   const [activeProfileId, setActiveProfileId] = useState(() => {
@@ -46,7 +64,7 @@ export const TransactionProvider = ({ children }) => {
 
   // Profile Management
   const addProfile = (name, icon) => {
-    const newProfile = { id: Date.now().toString(), name, icon };
+    const newProfile = { id: Date.now().toString(), name, icon, categories: DEFAULT_CATEGORIES };
     setProfiles(prev => [...prev, newProfile]);
     setActiveProfileId(newProfile.id);
   };
@@ -58,6 +76,26 @@ export const TransactionProvider = ({ children }) => {
     if (activeProfileId === id) {
       setActiveProfileId(profiles.filter(p => p.id !== id)[0].id);
     }
+  };
+
+  // Category Management
+  const addCategory = (profileId, category) => {
+    const newCategory = { ...category, id: Date.now().toString() };
+    setProfiles(prev => prev.map(p => {
+      if (p.id === profileId) {
+        return { ...p, categories: [...p.categories, newCategory] };
+      }
+      return p;
+    }));
+  };
+
+  const deleteCategory = (profileId, categoryId) => {
+    setProfiles(prev => prev.map(p => {
+      if (p.id === profileId) {
+        return { ...p, categories: p.categories.filter(c => c.id !== categoryId) };
+      }
+      return p;
+    }));
   };
 
   const addTransaction = (transaction) => {
@@ -87,13 +125,18 @@ export const TransactionProvider = ({ children }) => {
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
 
+  const activeProfile = profiles.find(p => p.id === activeProfileId) || profiles[0];
+
   return (
     <TransactionContext.Provider value={{
       profiles,
+      activeProfile,
       activeProfileId,
       setActiveProfileId,
       addProfile,
       deleteProfile,
+      addCategory,
+      deleteCategory,
       transactions: activeTransactions, // Expose only active txs universally
       addTransaction,
       deleteTransaction,

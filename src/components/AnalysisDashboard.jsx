@@ -1,19 +1,9 @@
 import React from 'react';
 import { useTransactions } from '../context/TransactionContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { ShoppingBag, Coffee, Car, Home, Smartphone, Activity } from 'lucide-react';
-
-const CATEGORY_META = {
-  food: { label: 'Food & Dining', icon: Coffee, color: '#f59e0b' },
-  transport: { label: 'Transport', icon: Car, color: '#3b82f6' },
-  shopping: { label: 'Shopping', icon: ShoppingBag, color: '#ec4899' },
-  housing: { label: 'Housing', icon: Home, color: '#8b5cf6' },
-  bills: { label: 'Bills', icon: Smartphone, color: '#06b6d4' },
-  other_out: { label: 'Other Exp.', icon: Activity, color: '#64748b' },
-};
 
 export const AnalysisDashboard = () => {
-  const { transactions } = useTransactions();
+  const { transactions, activeProfile } = useTransactions();
 
   // Get current month boundaries
   const now = new Date();
@@ -35,12 +25,16 @@ export const AnalysisDashboard = () => {
 
   // Format data for Recharts
   const chartData = Object.keys(categoryTotals)
-    .map(key => ({
-      name: CATEGORY_META[key]?.label || 'Other',
-      value: categoryTotals[key],
-      color: CATEGORY_META[key]?.color || '#64748b',
-      id: key
-    }))
+    .map(key => {
+      const catMeta = activeProfile?.categories?.find(c => c.id === key);
+      return {
+        name: catMeta?.label || 'Deleted Category',
+        value: categoryTotals[key],
+        color: catMeta?.color || '#a1a1aa',
+        icon: catMeta?.icon || '❓',
+        id: key
+      };
+    })
     .sort((a, b) => b.value - a.value); // Sort largest to smallest
 
   const CustomTooltip = ({ active, payload }) => {
@@ -129,7 +123,6 @@ export const AnalysisDashboard = () => {
               {chartData.map((item, index) => {
                 const percentage = Math.round((item.value / totalSpent) * 100);
                 const isLast = index === chartData.length - 1;
-                const Icon = CATEGORY_META[item.id]?.icon || Activity;
                 
                 return (
                   <div 
@@ -141,8 +134,8 @@ export const AnalysisDashboard = () => {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div className="flex-center" style={{ width: '36px', height: '36px', borderRadius: '50%', background: `${item.color}20`, color: item.color }}>
-                        <Icon size={18} />
+                      <div className="flex-center" style={{ width: '36px', height: '36px', borderRadius: '50%', background: `${item.color}20`, color: item.color, fontSize: '1.2rem' }}>
+                        {item.icon}
                       </div>
                       <div>
                         <div style={{ fontWeight: '600' }}>{item.name}</div>

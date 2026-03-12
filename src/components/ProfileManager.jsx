@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { useTransactions } from '../context/TransactionContext';
-import { UserCircle, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2 } from 'lucide-react';
 
 export const ProfileManager = () => {
-  const { profiles, activeProfileId, setActiveProfileId, addProfile, deleteProfile } = useTransactions();
-  const [isAdding, setIsAdding] = useState(false);
+  const { profiles, activeProfile, activeProfileId, setActiveProfileId, addProfile, deleteProfile, addCategory, deleteCategory } = useTransactions();
+  const [isAddingProfile, setIsAddingProfile] = useState(false);
   const [newProfileName, setNewProfileName] = useState('');
+  
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [catName, setCatName] = useState('');
+  const [catEmoji, setCatEmoji] = useState('🍔');
+  const [catType, setCatType] = useState('expense');
+  const [catColor, setCatColor] = useState('#ec4899');
 
   const handleAddSubmit = (e) => {
     e.preventDefault();
@@ -14,7 +20,21 @@ export const ProfileManager = () => {
     // Default to a folder icon, or a Piggy icon.
     addProfile(newProfileName.trim(), '📁');
     setNewProfileName('');
-    setIsAdding(false);
+    setIsAddingProfile(false);
+  };
+
+  const handleAddCategory = (e) => {
+    e.preventDefault();
+    if (!catName.trim() || !catEmoji.trim()) return;
+
+    addCategory(activeProfileId, {
+      label: catName.trim(),
+      icon: catEmoji.trim(),
+      color: catColor,
+      type: catType
+    });
+    setCatName('');
+    setIsAddingCategory(false);
   };
 
   return (
@@ -66,7 +86,7 @@ export const ProfileManager = () => {
           );
         })}
 
-        {isAdding ? (
+        {isAddingProfile ? (
           <form className="glass-panel" onSubmit={handleAddSubmit} style={{ borderStyle: 'dashed' }}>
             <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Create New Ledger</h3>
             <div className="flex-between" style={{ gap: '0.75rem' }}>
@@ -82,7 +102,7 @@ export const ProfileManager = () => {
               <button type="submit" className="btn btn-primary" disabled={!newProfileName.trim()}>
                 Save
               </button>
-              <button type="button" className="btn" style={{ background: 'transparent', border: '1px solid var(--border-color)' }} onClick={() => setIsAdding(false)}>
+              <button type="button" className="btn" style={{ background: 'transparent', border: '1px solid var(--border-color)' }} onClick={() => setIsAddingProfile(false)}>
                 Cancel
               </button>
             </div>
@@ -90,13 +110,80 @@ export const ProfileManager = () => {
         ) : (
           <button 
             className="glass-panel flex-center" 
-            style={{ width: '100%', borderStyle: 'dashed', color: 'var(--text-secondary)', gap: '0.5rem', cursor: 'pointer' }}
-            onClick={() => setIsAdding(true)}
+            style={{ width: '100%', borderStyle: 'dashed', color: 'var(--text-secondary)', gap: '0.5rem', cursor: 'pointer', marginBottom: '2rem' }}
+            onClick={() => setIsAddingProfile(true)}
           >
             <Plus size={20} />
             <span>Add New Ledger</span>
           </button>
         )}
+
+        {/* Categories Section for Active Profile */}
+        <div style={{ marginTop: '1rem' }}>
+          <h2 className="title" style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>Categories</h2>
+          <p className="subtitle" style={{ marginBottom: '1rem' }}>Manage tags for {activeProfile.name}</p>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+            {activeProfile.categories.map(cat => (
+              <div key={cat.id} className="glass-panel" style={{ padding: '0.5rem 0.75rem', marginBottom: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', borderRadius: '12px', border: `1px solid ${cat.color}40` }}>
+                <span style={{ fontSize: '1.2rem' }}>{cat.icon}</span>
+                <span style={{ fontSize: '0.85rem' }}>{cat.label}</span>
+                {activeProfile.categories.length > 1 && (
+                  <button onClick={() => deleteCategory(activeProfileId, cat.id)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', marginLeft: '0.25rem' }}>
+                    &times;
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {isAddingCategory ? (
+            <form className="glass-panel" onSubmit={handleAddCategory} style={{ borderStyle: 'dashed', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <select className="glass-input" value={catType} onChange={e => setCatType(e.target.value)} style={{ padding: '0.75rem' }}>
+                <option value="expense">Expense Category</option>
+                <option value="income">Income Category</option>
+              </select>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input 
+                  type="text" 
+                  className="glass-input" 
+                  placeholder="Emoji 🍔" 
+                  value={catEmoji}
+                  onChange={e => setCatEmoji(e.target.value)}
+                  style={{ width: '70px', textAlign: 'center' }}
+                  maxLength={2}
+                />
+                <input 
+                  type="text" 
+                  className="glass-input" 
+                  style={{ flex: 1 }}
+                  placeholder="Name (e.g. Snacks)" 
+                  value={catName}
+                  onChange={e => setCatName(e.target.value)}
+                />
+                <input 
+                  type="color" 
+                  value={catColor}
+                  onChange={e => setCatColor(e.target.value)}
+                  style={{ width: '45px', height: '45px', borderRadius: '8px', border: 'none', background: 'none' }}
+                />
+              </div>
+              <div className="flex-between">
+                <button type="button" className="btn" style={{ background: 'transparent', border: '1px solid var(--border-color)' }} onClick={() => setIsAddingCategory(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={!catName || !catEmoji}>Add Category</button>
+              </div>
+            </form>
+          ) : (
+             <button 
+              className="glass-panel flex-center" 
+              style={{ width: '100%', borderStyle: 'dashed', color: 'var(--text-secondary)', gap: '0.5rem', cursor: 'pointer' }}
+              onClick={() => setIsAddingCategory(true)}
+            >
+              <Plus size={20} />
+              <span>Add Custom Category</span>
+            </button>
+          )}
+        </div>
       </div>
 
       <style>{`

@@ -2,7 +2,7 @@ import React from 'react';
 import { useTransactions } from '../context/TransactionContext';
 
 export const HistoryList = () => {
-  const { transactions, deleteTransaction } = useTransactions();
+  const { transactions, deleteTransaction, activeProfile } = useTransactions();
 
   // Group transactions by date
   const groupedTransactions = transactions.reduce((groups, t) => {
@@ -33,21 +33,28 @@ export const HistoryList = () => {
             </div>
             
             <div className="glass-panel" style={{ padding: '0.5rem 1rem' }}>
-              {groupedTransactions[date].map((t, index) => (
-                <div 
-                  key={t.id} 
-                  className="history-item flex-between"
-                  style={{ 
-                    padding: '1rem 0',
-                    borderBottom: index < groupedTransactions[date].length - 1 ? '1px solid var(--border-color)' : 'none'
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: '600' }}>{t.categoryId || 'Other'}</div>
-                    {t.note && (
-                      <div className="subtitle" style={{ fontSize: '0.75rem', marginTop: '2px' }}>{t.note}</div>
-                    )}
-                  </div>
+              {groupedTransactions[date].map((t, index) => {
+                const catMeta = activeProfile?.categories?.find(c => c.id === t.categoryId) || { label: 'Deleted Category', icon: '❓', color: '#a1a1aa' };
+                return (
+                  <div 
+                    key={t.id} 
+                    className="history-item flex-between"
+                    style={{ 
+                      padding: '1rem 0',
+                      borderBottom: index < groupedTransactions[date].length - 1 ? '1px solid var(--border-color)' : 'none'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div className="flex-center" style={{ width: '36px', height: '36px', borderRadius: '50%', background: `${catMeta.color}20`, color: catMeta.color, fontSize: '1.2rem' }}>
+                        {catMeta.icon}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '600' }}>{catMeta.label}</div>
+                        {t.note && (
+                          <div className="subtitle" style={{ fontSize: '0.75rem', marginTop: '2px' }}>{t.note}</div>
+                        )}
+                      </div>
+                    </div>
                   <div className="flex-center" style={{ gap: '1rem' }}>
                     <div className={t.type === 'income' ? 'text-success' : 'text-primary'} style={{ fontWeight: '700' }}>
                       {t.type === 'income' ? '+' : '-'}${t.amount.toLocaleString()}
@@ -62,7 +69,7 @@ export const HistoryList = () => {
                     </button>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         ))
